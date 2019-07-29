@@ -1,6 +1,6 @@
 # GestureController
 
-This small library will allow you to easily add direction based touch gestures any HTML Element.
+This small library will allow you to easily add direction based touch gestures to any HTML Element.
 
 Multiple instances can exist on a page.
 
@@ -41,7 +41,7 @@ Multiple instances can exist on a page.
   });
 
   g.on('move', s => {
-    // triggered on every move event
+    // triggered on every move event, regardless of direction
     console.log(s);
   });
 </script>
