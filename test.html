@@ -5,16 +5,19 @@
 <link rel="stylesheet" href="test.css">
 <h1> Gesture Controller Test </h1>
 <img id="guide" src="guide.svg" alt="directional testing guide">
-<p> Drag your finger in various directions over the guidelines. </p>
+<p> Drag your finger in various directions over the guide. </p>
 <script type="module">
   import { GestureController } from './GestureController.js';
   let guide = document.getElementById('guide');
-  let g = new GestureController(guide);
-  g.on('left', s => alert('swiped left'));
-  g.on('right', s => alert('swiped right'));
-  g.on('up', s => alert('swiped up'));
-  g.on('down', s => alert('swiped down'));
-  g.on('tap', s => alert('tapped'));
-  g.on('hold', s => alert('held'));
-  g.on('move', s => console.log(s));
+  let gc = new GestureController(guide);
+
+  gc.on('move', details => console.log(details));
+
+  gc.on('left', d => alert('swiped left'));
+  gc.on('right', d => alert('swiped right'));
+  gc.on('up', d => alert('swiped up'));
+  gc.on('down', d => alert('swiped down'));
+
+  gc.on('tap', d => alert('tapped'));
+  gc.on('hold', d => alert('held'));
 </script>
