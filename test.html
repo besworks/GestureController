@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title> Gesture Controller Test </title>
+<meta name="viewport" content="initial-scale=1.0,width=device-width">
+<link rel="stylesheet" href="test.css">
+<h1> Gesture Controller Test </h1>
+<img id="guide" src="guide.svg" alt="directional testing guide">
+<p> Drag your finger in various directions over the guidelines. </p>
+<script type="module">
+  import { GestureController } from './GestureController.js';
+  let guide = document.getElementById('guide');
+  let g = new GestureController(guide);
+  g.on('left', s => alert('swiped left'));
+  g.on('right', s => alert('swiped right'));
+  g.on('up', s => alert('swiped up'));
+  g.on('down', s => alert('swiped down'));
+  g.on('tap', s => alert('tapped'));
+  g.on('hold', s => alert('held'));
+  g.on('move', s => console.log(s));
+</script>

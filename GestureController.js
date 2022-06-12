@@ -182,17 +182,25 @@ export function GestureController(options) {
     g.emit('move');
   }
   
-  function disableContextMenu() {
-    event.preventDefault();
-    event.stopPropagation();
-    return false;
+  function suppressClick(event) {
+    if (event.pointerType == 'touch') {
+      event.preventDefault();
+    }
   }
   
+  function disableContextMenu(event) {
+    if (event.pointerType == 'touch') {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    }
+  }
+  
+  g.element.addEventListener('click', suppressClick);
   g.element.addEventListener('contextmenu', disableContextMenu);
   g.element.addEventListener('touchstart', touchStartHandler, { passive : true });
   g.element.addEventListener('touchmove', touchMoveHandler, { passive : true });
   g.element.addEventListener('touchend', touchEndHandler);
   
-  console.log(g);
   return g;
 };
