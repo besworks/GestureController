@@ -39,10 +39,10 @@ The controller will emit events for `up`, `down`, `left`, & `right` swipes. With
 
 The native `click` and `contextmenu` events will still fire on your target if using a mouse but are suppressed for touch inputs and the controller will emit `tap` and `hold` events instead.
 
-To attach a handler, use the `on` method.
+To attach an event handler, use the `on(eventType)` method.
 
 ```
-g.on('up', s => alert('swiped up'));
+g.on('up', details => alert('swiped up'));
 ```
 
 Each event passes an object to the handler with details about the gesture including :
