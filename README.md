@@ -19,8 +19,8 @@ let gc = new GestureController(el);
 
 An **options** object can be used to override some default behavior. The supported properties are :
 
-- `element` : A reference to an HTML Element.
-- `holdTime` : How long a touch must be held to trigger a `hold` event.
+- `element` : A reference to an HTML Element that the controller will attach to.
+- `holdTime` : How long (in milliseconds) a touch must be held to trigger a `hold` event.
 - `threshold` : The number of pixels a touch point must travel to be count as movement.
 
 The example below shows the default values.
