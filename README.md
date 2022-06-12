@@ -13,19 +13,25 @@ let g = new GestureController();
 Or pass a reference to an element :
 
 ```
-let g = new GestureController(document.getElementById('your-element');
+let e = document.getElementById('your-element');
+let g = new GestureController(e);
 ```
 
 An `options` object can be used to override some default behavior. Supported options are :
 
-- `element` : A reference to an HTML Element. 
-   Default: `document.body`
+- `element` : A reference to an HTML Element.
+- `holdTime` : How long a touch must be held to trigger a `hold` event.
+- `threshold` : The number of pixels a touch point must travel to be count as movement.
 
-- `holdTime` : How long a touch must be held to trigger a `hold` event. 
-   Default: `600` milliseconds.
+The example below shows the default values.
 
-- `threshold` : The number of pixels a touch point must travel to be count as movement. 
-    Default: `5`
+```
+let g = new GestureController({
+  element: document.body,
+  holdTime: 600,
+  threshold: 5
+});
+```
 
 ## Events
 
