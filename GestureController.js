@@ -1,206 +1,216 @@
-export function GestureController(options) {
-  let t = 5;
-  let e = document.body;
-  let holdTime = 600;
-  let w = null;
-  
-  if (options) {
+export class GestureController {
+  #threshold;
+  #element;
+  #holdTime;
+  #holdTimeout;
+  #swipeState;
+  #handlers;
+
+  constructor(options = {}) {
+    this.#threshold = 5;
+    this.#element = document.body;
+    this.#holdTime = 600;
+    this.#holdTimeout = null;
+    this.#handlers = [];
+    
     if (options.nodeName) {
-      e = options;
+      this.#element = options;
     } else {
-      if (options.element) { e = options.element; }
-      if (options.threshold) { t = options.threshold; }
-      if (options.holdTime) { holdTime = options.holdTime; }
+      if (options.element) this.#element = options.element;
+      if (options.threshold) this.#threshold = options.threshold;
+      if (options.holdTime) this.#holdTime = options.holdTime;
     }
+
+    this.#initializeEventListeners();
   }
 
-  let g = {
-    element : e,
-    handlers : []
-  };
-  
-  g.on = function(eventType, handler) {
-    switch(eventType) {
-      case 'tap' :
-      case 'hold' :
-      case 'left' :
-      case 'right' :
-      case 'up' :
-      case 'down' :
-      case 'move' :
-        g.handlers.push({
-          type : eventType,
-          handler : handler
-        });
-        break;
-      default:
-        console.warn('invalid eventType specified ignoring handler:', eventType);
-        return;
-    }
-  };
-  
-  
-  g.emit = function(eventType) {
-    g.handlers.forEach(h => {
-      if (h.type == eventType) {
-        h.handler.call(null, s);
-      }
-    });
-  };
-  
-  function Swipe(touchEvent) {
-    let i = Date.now();
-    let r = g.element.getBoundingClientRect();
-    let x = parseInt(touchEvent.touches[0].clientX);
-    let y = parseInt(touchEvent.touches[0].clientY);
-    
-    w = setTimeout(() => {
-      g.emit('hold');
-    }, holdTime);
-    
-    let edge = (() => {
-      if (y - t <= r.top && x - t <= r.left) return 'top-left';
-      if (y - t <= r.top && x + t >= r.right) return 'top-right';
-      if (y + t >= r.bottom && x - t <= r.left) return 'bottom-left';
-      if (y + t >= r.bottom && x + t >= r.right) return 'bottom-right';
-      if (y - t <= r.top) return 'top';
-      if (y + t >= r.bottom) return 'bottom';
-      if (x - t <= r.left) return 'left';
-      if (x + t >= r.right) return 'right';
-      return null;
-    })();
-    
-    return {
-      i : i,
-      start : {
-        x : x,
-        y : y
-      },
-      end : {
-        x : null,
-        y : null
-      },
-      edge : edge,
-      angle : null,
-      direction : null,
-      delta : {
-        x : null,
-        y : null
-      }
-    };
-  }
-  
-  let s;
-  
-  function touchStartHandler(event) {
-    s = new Swipe(event);
-  }
-  
-  function touchMoveHandler(event) {
-    clearTimeout(w);
-    s.end = {
-      x : parseInt(event.touches[0].clientX),
-      y : parseInt(event.touches[0].clientY)
-    };
-  }
-  
-  function touchEndHandler(event) {
-    let i = Date.now();
-    s.duration = i - s.i;
-    delete s.i;
-    
-    if (s.duration < holdTime) {
-      clearTimeout(w);
-      w = null;
-    }
-    
-    if (
-      s.end.x === null ||
-      s.end.y === null
-    ) {
-      if (!w) {
-        g.emit('tap');
-      }
+  on(eventType, handler) {
+    const validEvents = ['tap', 'hold', 'left', 'right', 'up', 'down', 'move'];
+    if (!validEvents.includes(eventType)) {
+      console.warn('invalid eventType specified ignoring handler:', eventType);
       return;
     }
     
-    s.delta.x = parseInt(s.end.x - s.start.x);
-    s.delta.y = parseInt(s.end.y - s.start.y);
-    s.distance = parseInt(Math.hypot(s.delta.x, s.delta.y));
-    s.velocity = s.distance / s.duration;
-    
-    if (s.delta.x == 0) {
-      if (s.delta.y < 0) {
-        s.angle = 0;
-      } else if (s.delta.y > 0) {
-        s.angle = 180;
-      }
-    } else if (s.delta.y == 0) {
-      if (s.delta.x < 0) {
-        s.angle = 270;
-      } else if (s.delta.x > 0) {
-        s.angle = 90;
-      }
-    } else {
-      let dx = s.delta.x;
-      if (dx < 0) { dx = dx * -1; }
-      
-      let dy = s.delta.y;
-      if (dy < 0) { dy = dy * -1; }
-    
-      if (dx - t <= 0 && dy - t <= 0 && !w) {
-        g.emit('tap');
-        return;
-      }
-    
-      let radians = Math.atan(dy / dx);
-      let degrees = parseInt(radians * (180 / Math.PI));
+    this.#handlers.push({
+      type: eventType,
+      handler: handler
+    });
+  }
 
-      if (s.delta.x < 0 && s.delta.y < 0) {
-        s.angle = 360 - (90 - degrees);
-      } else if (s.delta.x < 0 && s.delta.y > 0) {
-        s.angle = 360 - degrees - 90;
-      } else if (s.delta.x > 0 && s.delta.y > 0) {
-        s.angle = degrees + 90;
-      } else {
-        s.angle = 90 - degrees;
+  #emit(eventType) {
+    this.#handlers.forEach(h => {
+      if (h.type === eventType) {
+        h.handler.call(null, this.#swipeState);
       }
-      
-      if (s.angle <= 45 || s.angle >= 315) {
-        s.direction = 'up';
-      } else if (s.angle > 45 && s.angle <= 135) {
-        s.direction = 'right';
-      } else if (s.angle > 135 && s.angle <= 225) {
-        s.direction = 'down';
-      } else if (s.angle > 225 && s.angle < 315) {
-        s.direction = 'left';
-      }
-      
-      g.emit(s.direction);
+    });
+  }
+
+  #createSwipe(touchEvent) {
+    const initialTime = Date.now();
+    const rect = this.#element.getBoundingClientRect();
+    const x = parseInt(touchEvent.touches[0].clientX);
+    const y = parseInt(touchEvent.touches[0].clientY);
+    
+    this.#holdTimeout = setTimeout(() => {
+      this.#emit('hold');
+    }, this.#holdTime);
+    
+    const edge = this.#detectEdge(x, y, rect);
+    
+    return {
+      initialTime,
+      start: { x, y },
+      end: { x: null, y: null },
+      edge,
+      angle: null,
+      direction: null,
+      delta: { x: null, y: null }
+    };
+  }
+
+  #detectEdge(x, y, rect) {
+    const { top, bottom, left, right } = rect;
+    const t = this.#threshold;
+
+    if (y - t <= top && x - t <= left) return 'top-left';
+    if (y - t <= top && x + t >= right) return 'top-right';
+    if (y + t >= bottom && x - t <= left) return 'bottom-left';
+    if (y + t >= bottom && x + t >= right) return 'bottom-right';
+    if (y - t <= top) return 'top';
+    if (y + t >= bottom) return 'bottom';
+    if (x - t <= left) return 'left';
+    if (x + t >= right) return 'right';
+    return null;
+  }
+
+  #handleTouchStart = (event) => {
+    this.#swipeState = this.#createSwipe(event);
+  };
+
+  #handleTouchMove = (event) => {
+    clearTimeout(this.#holdTimeout);
+    this.#swipeState.end = {
+      x: parseInt(event.touches[0].clientX),
+      y: parseInt(event.touches[0].clientY)
+    };
+  };
+
+  #handleTouchEnd = (event) => {
+    const currentTime = Date.now();
+    this.#swipeState.duration = currentTime - this.#swipeState.initialTime;
+    delete this.#swipeState.initialTime;
+    
+    if (this.#swipeState.duration < this.#holdTime) {
+      clearTimeout(this.#holdTimeout);
+      this.#holdTimeout = null;
     }
     
-    g.emit('move');
+    if (!this.#swipeState.end.x || !this.#swipeState.end.y) {
+      if (!this.#holdTimeout) {
+        this.#emit('tap');
+      }
+      return;
+    }
+
+    this.#calculateSwipeMetrics();
+    this.#emit('move');
+  };
+
+  #calculateSwipeMetrics() {
+    const { start, end } = this.#swipeState;
+    this.#swipeState.delta = {
+      x: parseInt(end.x - start.x),
+      y: parseInt(end.y - start.y)
+    };
+    
+    this.#swipeState.distance = parseInt(Math.hypot(this.#swipeState.delta.x, this.#swipeState.delta.y));
+    this.#swipeState.velocity = this.#swipeState.distance / this.#swipeState.duration;
+    
+    this.#calculateAngleAndDirection();
   }
-  
-  function suppressClick(event) {
-    if (event.pointerType == 'touch') {
+
+  #calculateAngleAndDirection() {
+    const { delta } = this.#swipeState;
+    
+    if (this.#isSimpleSwipe(delta)) return;
+    
+    const dx = Math.abs(delta.x);
+    const dy = Math.abs(delta.y);
+    
+    if (dx - this.#threshold <= 0 && dy - this.#threshold <= 0 && !this.#holdTimeout) {
+      this.#emit('tap');
+      return;
+    }
+    
+    this.#calculateAngle(dx, dy);
+    this.#determineDirection();
+  }
+
+  #isSimpleSwipe(delta) {
+    if (delta.x === 0) {
+      this.#swipeState.angle = delta.y < 0 ? 0 : 180;
+      return true;
+    }
+    if (delta.y === 0) {
+      this.#swipeState.angle = delta.x < 0 ? 270 : 90;
+      return true;
+    }
+    return false;
+  }
+
+  #calculateAngle(dx, dy) {
+    const radians = Math.atan(dy / dx);
+    const degrees = parseInt(radians * (180 / Math.PI));
+    const { delta } = this.#swipeState;
+
+    if (delta.x < 0 && delta.y < 0) {
+      this.#swipeState.angle = 360 - (90 - degrees);
+    } else if (delta.x < 0 && delta.y > 0) {
+      this.#swipeState.angle = 360 - degrees - 90;
+    } else if (delta.x > 0 && delta.y > 0) {
+      this.#swipeState.angle = degrees + 90;
+    } else {
+      this.#swipeState.angle = 90 - degrees;
+    }
+  }
+
+  #determineDirection() {
+    const { angle } = this.#swipeState;
+    let direction;
+    
+    if (angle <= 45 || angle >= 315) {
+      direction = 'up';
+    } else if (angle > 45 && angle <= 135) {
+      direction = 'right';
+    } else if (angle > 135 && angle <= 225) {
+      direction = 'down';
+    } else if (angle > 225 && angle < 315) {
+      direction = 'left';
+    }
+    
+    this.#swipeState.direction = direction;
+    this.#emit(direction);
+  }
+
+  #suppressClick = (event) => {
+    if (event.pointerType === 'touch') {
       event.preventDefault();
     }
-  }
-  
-  function disableContextMenu(event) {
-    if (event.pointerType == 'touch') {
+  };
+
+  #disableContextMenu = (event) => {
+    if (event.pointerType === 'touch') {
       event.preventDefault();
       event.stopPropagation();
       return false;
     }
+  };
+
+  #initializeEventListeners() {
+    this.#element.addEventListener('click', this.#suppressClick);
+    this.#element.addEventListener('contextmenu', this.#disableContextMenu);
+    this.#element.addEventListener('touchstart', this.#handleTouchStart, { passive: true });
+    this.#element.addEventListener('touchmove', this.#handleTouchMove, { passive: true });
+    this.#element.addEventListener('touchend', this.#handleTouchEnd);
   }
-  
-  g.element.addEventListener('click', suppressClick);
-  g.element.addEventListener('contextmenu', disableContextMenu);
-  g.element.addEventListener('touchstart', touchStartHandler, { passive : true });
-  g.element.addEventListener('touchmove', touchMoveHandler, { passive : true });
-  g.element.addEventListener('touchend', touchEndHandler);
-  
-  return g;
-};
+}
