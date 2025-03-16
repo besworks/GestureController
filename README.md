@@ -35,9 +35,9 @@ let gc = new GestureController({
 
 ## Events
 
-The controller will emit events for `up`, `down`, `left`, & `right` swipes. With each of these gestures a `move` event is also emitted.
+The controller will emit events for `up`, `down`, `left`, & `right` swipes. With each of these gestures a general `move` event is also emitted.
 
-The native `click` and `contextmenu` events will still fire on your target if using a mouse but are suppressed for touch inputs and the controller will emit `tap` and `hold` events instead.
+The native `click` and `contextmenu` events will still fire on your target if using a mouse but are suppressed for touch inputs and the controller will emit `tap`, `hold` and `release` events instead.
 
 To attach an event handler, use the `on(eventType)` method.
 
