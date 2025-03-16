@@ -1,4 +1,5 @@
 export class GestureController {
+  static #VALID_EVENTS = Object.freeze(['tap', 'hold', 'left', 'right', 'up', 'down', 'move']);
   #threshold;
   #element;
   #holdTime;
@@ -25,8 +26,7 @@ export class GestureController {
   }
 
   on(eventType, handler) {
-    const validEvents = ['tap', 'hold', 'left', 'right', 'up', 'down', 'move'];
-    if (!validEvents.includes(eventType)) {
+    if (!GestureController.#VALID_EVENTS.includes(eventType)) {
       console.warn('invalid eventType specified ignoring handler:', eventType);
       return;
     }

@@ -17,7 +17,9 @@
   gc.on('right', d => alert('swiped right'));
   gc.on('up', d => alert('swiped up'));
   gc.on('down', d => alert('swiped down'));
-
+  
   gc.on('tap', d => alert('tapped'));
   gc.on('hold', d => alert('held'));
+
+  gc.on('wrong', d => alert('nope, check console warnings'));
 </script>
