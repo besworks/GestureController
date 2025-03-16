@@ -6,20 +6,31 @@
 <h1> Gesture Controller Test </h1>
 <img id="guide" src="guide.svg" alt="directional testing guide">
 <p> Drag your finger in various directions over the guide. </p>
+<output> Watch here for output </output>
+<p> Check console for details. </p>
+
 <script type="module">
   import { GestureController } from './GestureController.js';
   let guide = document.getElementById('guide');
   let gc = new GestureController(guide);
+  let output = document.querySelector('output');
+
+  function showNotification(message) {
+    output.textContent = message;
+  }
 
   gc.on('move', details => console.log(details));
-
-  gc.on('left', d => alert('swiped left'));
-  gc.on('right', d => alert('swiped right'));
-  gc.on('up', d => alert('swiped up'));
-  gc.on('down', d => alert('swiped down'));
   
-  gc.on('tap', d => alert('tapped'));
-  gc.on('hold', d => alert('held'));
+  gc.on('left', d => showNotification('swiped left'));
+  gc.on('right', d => showNotification('swiped right'));
+  gc.on('up', d => showNotification('swiped up'));
+  gc.on('down', d => showNotification('swiped down'));
 
-  gc.on('wrong', d => alert('nope, check console warnings'));
+  gc.on('tap', d => showNotification('tapped'));
+  gc.on('hold', d => showNotification('held'));
+  gc.on('release', d => showNotification('released'));
+
+  gc.on('wrong', d => showNotification(
+    'nope, check console warnings'
+  ));  
 </script>

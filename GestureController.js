@@ -1,5 +1,9 @@
 export class GestureController {
-  static #VALID_EVENTS = Object.freeze(['tap', 'hold', 'left', 'right', 'up', 'down', 'move']);
+  static #VALID_EVENTS = Object.freeze([
+    'tap', 'hold', 'release', 'move',
+    'left', 'right', 'up', 'down'
+  ]);
+
   #threshold;
   #element;
   #holdTime;
@@ -103,6 +107,8 @@ export class GestureController {
     if (this.#swipeState.duration < this.#holdTime) {
       clearTimeout(this.#holdTimeout);
       this.#holdTimeout = null;
+    } else {
+      this.#emit('release');
     }
     
     if (!this.#swipeState.end.x || !this.#swipeState.end.y) {
