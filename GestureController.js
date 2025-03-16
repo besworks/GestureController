@@ -8,9 +8,9 @@ export class GestureController {
   #handlers;
 
   constructor(options = {}) {
-    this.#threshold = 5;
-    this.#element = document.body;
-    this.#holdTime = 600;
+    this.#threshold = options.threshold ?? 5;
+    this.#element = options.element ?? document.body;
+    this.#holdTime = options.holdTime ?? 600;
     this.#holdTimeout = null;
     this.#handlers = [];
     
@@ -90,8 +90,8 @@ export class GestureController {
   #handleTouchMove = (event) => {
     clearTimeout(this.#holdTimeout);
     this.#swipeState.end = {
-      x: parseInt(event.touches[0].clientX),
-      y: parseInt(event.touches[0].clientY)
+      x: parseInt(event.touches?.[0]?.clientX ?? 0),
+      y: parseInt(event.touches?.[0]?.clientY ?? 0)
     };
   };
 
