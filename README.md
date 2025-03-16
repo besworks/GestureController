@@ -6,13 +6,13 @@ This module will allow you to easily add direction based touch gestures to any H
 
 The constructor can be called with no parameters. This will attach the controller to `document.body` :
 
-```
+```javascript
 let gc = new GestureController();
 ```
 
 Or pass a reference to an element :
 
-```
+```javascript
 let el = document.getElementById('your-element');
 let gc = new GestureController(el);
 ```
@@ -25,7 +25,7 @@ An **options** object can be used to override some default behavior. The support
 
 The example below shows the default values.
 
-```
+```javascript
 let gc = new GestureController({
   element: document.body,
   holdTime: 600,
@@ -41,7 +41,7 @@ The native `click` and `contextmenu` events will still fire on your target if us
 
 To attach an event handler, use the `on(eventType)` method.
 
-```
+```javascript
 gc.on('up', details => alert('swiped up'));
 ```
 
